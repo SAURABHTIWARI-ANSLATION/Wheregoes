@@ -1,9 +1,20 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import Result from './pages/Result';
-import History from './pages/History';
+
+// Lazy load pages
+const Home = lazy(() => import('./pages/Home'));
+const BulkChecker = lazy(() => import('./pages/BulkChecker'));
+const ApiTester = lazy(() => import('./pages/ApiTester'));
+const Result = lazy(() => import('./pages/Result'));
+const History = lazy(() => import('./pages/History'));
+
+const PageLoader = () => (
+  <div className="flex flex-col items-center justify-center min-h-[60vh]">
+    <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+  </div>
+);
 
 const pageVariants = {
   initial: { opacity: 0, y: 8 },
@@ -36,42 +47,60 @@ export default function App() {
       <div className="min-h-screen flex flex-col">
         <Navbar />
         <main className="flex-1">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <AnimatedRoute>
-                  <Home />
-                </AnimatedRoute>
-              }
-            />
-            <Route
-              path="/result"
-              element={
-                <AnimatedRoute>
-                  <Result />
-                </AnimatedRoute>
-              }
-            />
-            <Route
-              path="/history"
-              element={
-                <AnimatedRoute>
-                  <History />
-                </AnimatedRoute>
-              }
-            />
-            <Route
-              path="*"
-              element={
-                <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-                  <p className="text-6xl font-black text-slate-700">404</p>
-                  <p className="text-slate-400">Page not found</p>
-                  <a href="/" className="btn-primary mt-2">Go Home</a>
-                </div>
-              }
-            />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <AnimatedRoute>
+                    <Home />
+                  </AnimatedRoute>
+                }
+              />
+              <Route
+                path="/result"
+                element={
+                  <AnimatedRoute>
+                    <Result />
+                  </AnimatedRoute>
+                }
+              />
+              <Route
+                path="/bulk"
+                element={
+                  <AnimatedRoute>
+                    <BulkChecker />
+                  </AnimatedRoute>
+                }
+              />
+              <Route
+                path="/tester"
+                element={
+                  <AnimatedRoute>
+                    <ApiTester />
+                  </AnimatedRoute>
+                }
+              />
+              <Route
+                path="/history"
+                element={
+                  <AnimatedRoute>
+                    <History />
+                  </AnimatedRoute>
+                }
+              />
+              <Route
+                path="*"
+                element={
+                  <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                    <p className="text-6xl font-black text-slate-700">404</p>
+                    <p className="text-slate-400">Page not found</p>
+                    <a href="/" className="btn-primary mt-2">Go Home</a>
+                  </div>
+                }
+              />
+            </Routes>
+          </Suspense>
         </main>
 
         {/* Footer */}

@@ -45,6 +45,7 @@ export default function Home() {
   const msgIntervalRef = useRef(null);
 
   useEffect(() => {
+    document.title = 'WhereGoes | Free URL Redirect Tracer & Link Analyzer';
     return () => clearInterval(msgIntervalRef.current);
   }, []);
 
@@ -68,7 +69,7 @@ export default function Home() {
       return;
     }
 
-    // Save to Firebase (fire and forget)
+    // Save to Firebase (non-blocking so ad-blockers don't break the trace)
     saveResult(url, data);
 
     // Navigate to result page

@@ -1,13 +1,29 @@
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, RotateCcw, History } from 'lucide-react';
+import { ArrowLeft, RotateCcw, History, LayoutList, Share2 } from 'lucide-react';
 import RedirectTimeline from '../components/RedirectTimeline';
+import VisualGraph from '../components/VisualGraph';
 import { cn } from '../lib/utils';
 
 export default function Result() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state;
+  const [view, setView] = useState('timeline'); // timeline or graph
+  const { result, url } = state || {};
+
+  // SEO: Update page title
+  useEffect(() => {
+    if (url) {
+      try {
+        const hostname = new URL(url).hostname;
+        document.title = `Trace Results: ${hostname} | WhereGoes`;
+      } catch (e) {
+        document.title = 'Trace Results | WhereGoes';
+      }
+    }
+  }, [url]);
 
   // If accessed directly without state, redirect home
   if (!state || !state.result) {
@@ -27,7 +43,6 @@ export default function Result() {
     );
   }
 
-  const { result, url } = state;
 
   return (
     <div className="min-h-screen pb-20">
@@ -50,21 +65,53 @@ export default function Result() {
             <span className="text-foreground">Result</span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 tracking-tight">
-            Trace Report
-          </h1>
-          <div className="flex items-center gap-2 bg-muted/50 border rounded-lg px-4 py-3 shadow-sm inline-flex max-w-full">
-            <p className="font-mono text-[14px] text-foreground break-all leading-snug">{url}</p>
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-3 tracking-tight">
+                Trace Report
+              </h1>
+              <div className="flex items-center gap-2 bg-muted/50 border rounded-lg px-4 py-3 shadow-sm inline-flex max-w-full">
+                <p className="font-mono text-[14px] text-foreground break-all leading-snug">{url}</p>
+              </div>
+            </div>
+
+            {/* View Toggle */}
+            <div className="flex p-1 bg-muted rounded-xl border w-fit flex-shrink-0">
+              <button
+                onClick={() => setView('timeline')}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
+                  view === 'timeline' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <LayoutList size={14} />
+                Timeline
+              </button>
+              <button
+                onClick={() => setView('graph')}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all",
+                  view === 'graph' ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Share2 size={14} />
+                Graph
+              </button>
+            </div>
           </div>
         </motion.div>
 
-        {/* Timeline */}
-        <RedirectTimeline
-          chain={result.chain}
-          totalTime={result.totalTime}
-          finalUrl={result.finalUrl}
-          warnings={result.warnings}
-        />
+        {/* Content */}
+        {view === 'timeline' ? (
+          <RedirectTimeline
+            chain={result.chain}
+            totalTime={result.totalTime}
+            finalUrl={result.finalUrl}
+            warnings={result.warnings}
+          />
+        ) : (
+          <VisualGraph chain={result.chain} />
+        )}
 
         {/* Bottom actions */}
         <motion.div

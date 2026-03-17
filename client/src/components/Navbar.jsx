@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Activity, History, Home, Menu, X, Sun, Moon } from 'lucide-react';
+import { Activity, History, Home, Menu, X, Sun, Moon, Table } from 'lucide-react';
 import { useState } from 'react';
 import { useTheme } from './ThemeProvider';
 import { cn } from '../lib/utils';
@@ -12,6 +12,8 @@ export default function Navbar() {
 
   const navLinks = [
     { to: '/', label: 'Home', icon: <Home size={15} />, end: true },
+    { to: '/bulk', label: 'Bulk Check', icon: <Table size={15} />, end: false },
+    { to: '/tester', label: 'API Tester', icon: <Activity size={15} />, end: false },
     { to: '/history', label: 'History', icon: <History size={15} />, end: false },
   ];
 

@@ -1,4 +1,7 @@
 const axios = require('axios');
+const dns = require('dns').promises;
+const cheerio = require('cheerio');
+const { performance } = require('perf_hooks');
 
 const MAX_REDIRECTS = 10;
 
@@ -24,14 +27,25 @@ async function checkRedirects(startUrl) {
 
     visitedUrls.add(currentUrl);
 
-    const startTime = Date.now();
+    let dnsTime = 0;
+    try {
+      const urlObj = new URL(currentUrl);
+      const dnsStart = performance.now();
+      await dns.lookup(urlObj.hostname);
+      dnsTime = Math.round(performance.now() - dnsStart);
+    } catch (err) {
+      // DNS lookup failed, but let axios try anyway as it might have its own cache
+    }
+
+    const startTime = performance.now();
+    let ttfb = 0;
     let response;
 
     try {
       response = await axios.get(currentUrl, {
         maxRedirects: 0,
-        validateStatus: (status) => status >= 100 && status < 400,
-        timeout: 10000,
+        validateStatus: (status) => status >= 100 && status < 600,
+        timeout: 15000,
         headers: {
           'User-Agent':
             'Mozilla/5.0 (compatible; WhereGoes/1.0; +https://wheregoes.app)',
@@ -39,10 +53,14 @@ async function checkRedirects(startUrl) {
             'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'en-US,en;q=0.5',
         },
+        onDownloadProgress: (progressEvent) => {
+          if (ttfb === 0) {
+            ttfb = Math.round(performance.now() - startTime);
+          }
+        },
       });
     } catch (err) {
       if (err.response) {
-        // Got a response but status was redirect-like error (3xx handled as error by axios)
         response = err.response;
       } else {
         warnings.push(`Network error at ${currentUrl}: ${err.message}`);
@@ -51,33 +69,54 @@ async function checkRedirects(startUrl) {
           status: null,
           statusText: 'Network Error',
           headers: {},
-          responseTime: Date.now() - startTime,
+          responseTime: Math.round(performance.now() - startTime),
+          dnsTime,
           error: err.message,
         });
         break;
       }
     }
 
-    const responseTime = Date.now() - startTime;
+    const responseTime = Math.round(performance.now() - startTime);
+    if (ttfb === 0) ttfb = responseTime; // Fallback if onDownloadProgress didn't fire
     totalTime += responseTime;
 
     const status = response.status;
     const headers = response.headers || {};
-
-    chain.push({
+    
+    const step = {
       url: currentUrl,
       status,
       statusText: response.statusText || getStatusText(status),
       headers: sanitizeHeaders(headers),
       responseTime,
-    });
+      dnsTime,
+      ttfb,
+    };
+
+    // SEO Insights for the step (especially the final one)
+    if (status >= 200 && status < 300 && response.data && typeof response.data === 'string') {
+      const $ = cheerio.load(response.data);
+      step.seo = {
+        title: $('title').text().trim(),
+        description: $('meta[name="description"]').attr('content') || $('meta[property="og:description"]').attr('content'),
+        canonical: $('link[rel="canonical"]').attr('href'),
+        h1: $('h1').first().text().trim(),
+      };
+    }
+
+    // Redirect suggestion
+    if (status === 302) {
+      step.suggestion = "Consider using 301 if this move is permanent for better SEO.";
+    } else if (status === 301) {
+      step.suggestion = "Good! Using 301 for permanent redirects preserves SEO authority.";
+    }
+
+    chain.push(step);
 
     // Check if this is a redirect
     const isRedirect = [301, 302, 303, 307, 308].includes(status);
-    if (!isRedirect) {
-      // Final destination reached
-      break;
-    }
+    if (!isRedirect) break;
 
     const location = headers.location;
     if (!location) {
@@ -141,7 +180,6 @@ function sanitizeHeaders(headers) {
     }
   }
 
-  // Include any other x- prefixed headers
   for (const [k, v] of Object.entries(headers)) {
     if (k.startsWith('x-') && !result[k]) {
       result[k] = v;

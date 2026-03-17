@@ -21,7 +21,7 @@ export function useRedirect() {
       return;
     }
 
-    // Persist result
+    // Persist result (non-blocking)
     saveResult(url, data);
 
     // Navigate to result

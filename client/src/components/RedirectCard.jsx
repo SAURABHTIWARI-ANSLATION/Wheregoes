@@ -1,41 +1,9 @@
 import { motion } from 'framer-motion';
-import { ExternalLink, Clock, AlertTriangle } from 'lucide-react';
+import { ExternalLink, Clock, AlertTriangle, Info, Globe, Search, ArrowDownRight, Activity } from 'lucide-react';
 import HeaderInspector from './HeaderInspector';
 import { cn } from '../lib/utils';
 
-function getStatusClass(status) {
-  if (!status) return 'status-err';
-  if (status >= 200 && status < 300) return 'status-2xx';
-  if (status >= 300 && status < 400) return 'status-3xx';
-  if (status >= 400 && status < 500) return 'status-4xx';
-  if (status >= 500) return 'status-5xx';
-  return 'status-err';
-}
-
-function getStatusLabel(status) {
-  const labels = {
-    200: 'OK',
-    201: 'Created',
-    204: 'No Content',
-    301: 'Moved Permanently',
-    302: 'Found',
-    303: 'See Other',
-    307: 'Temporary Redirect',
-    308: 'Permanent Redirect',
-    400: 'Bad Request',
-    401: 'Unauthorized',
-    403: 'Forbidden',
-    404: 'Not Found',
-    429: 'Too Many Requests',
-    500: 'Server Error',
-    502: 'Bad Gateway',
-    503: 'Unavailable',
-  };
-  return labels[status] || `HTTP ${status}`;
-}
-
 export default function RedirectCard({ step, index, isLast }) {
-  const statusClass = getStatusClass(step.status);
   const isSuccess = step.status >= 200 && step.status < 300;
   const isRedirect = step.status >= 300 && step.status < 400;
 
@@ -48,7 +16,6 @@ export default function RedirectCard({ step, index, isLast }) {
     >
       {/* Structural Timeline Connector */}
       <div className="relative flex-shrink-0 flex flex-col items-center">
-        {/* Node */}
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
@@ -63,40 +30,53 @@ export default function RedirectCard({ step, index, isLast }) {
         >
           {index + 1}
         </motion.div>
-        
-        {/* Connecting line */}
-        {!isLast && (
-          <div className="w-px flex-1 bg-border my-1" style={{ minHeight: '3rem' }} />
-        )}
+        {!isLast && <div className="w-px flex-1 bg-border my-1" style={{ minHeight: '3rem' }} />}
       </div>
 
       {/* Card Body */}
       <div className={cn(
         "flex-1 mb-8 bg-card border shadow-sm rounded-xl p-4 sm:p-5 transition-all duration-300",
-        isLast && "ring-1 ring-primary/20 border-primary/30"
+        isLast && "ring-1 ring-primary/20 border-primary/30 shadow-md"
       )}>
         {/* Top Header Group */}
         <div className="flex items-start justify-between gap-4 flex-wrap pb-1">
           <div className="flex items-center gap-3 flex-wrap">
             {step.status && (
-              <span className={statusClass}>
-                {step.status} <span className="text-muted-foreground ml-1 font-sans text-[10px]">{getStatusLabel(step.status)}</span>
+              <span className={cn(
+                "px-2.5 py-0.5 rounded-lg text-[13px] font-bold font-mono",
+                isSuccess ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" :
+                isRedirect ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" :
+                "bg-rose-500/10 text-rose-500 border border-rose-500/20"
+              )}>
+                {step.status}
               </span>
             )}
             
             {isLast && (
               <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-bold font-mono uppercase bg-primary/10 text-primary border border-primary/20">
-                Final Result
+                Final Destination
               </span>
             )}
           </div>
           
-          {step.responseTime !== undefined && (
-            <div className="flex items-center gap-1.5 text-[13px] text-muted-foreground font-medium bg-muted px-2.5 py-1 rounded-md">
+          <div className="flex items-center gap-2 flex-wrap">
+            {step.dnsTime !== undefined && (
+              <div className="flex items-center gap-1 text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded border border-border/50" title="DNS Lookup Time">
+                <Globe size={10} />
+                <span>DNS: {step.dnsTime}ms</span>
+              </div>
+            )}
+            {step.ttfb !== undefined && (
+              <div className="flex items-center gap-1 text-[11px] text-muted-foreground bg-muted px-2 py-0.5 rounded border border-border/50" title="Time to First Byte">
+                <Activity size={10} />
+                <span>TTFB: {step.ttfb}ms</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 text-[12px] text-muted-foreground font-medium bg-muted px-2.5 py-1 rounded-md border border-border/20 shadow-xs">
               <Clock size={12} className="text-primary/70" />
               <span>{step.responseTime}ms</span>
             </div>
-          )}
+          </div>
         </div>
 
         {/* URL Link */}
@@ -112,16 +92,66 @@ export default function RedirectCard({ step, index, isLast }) {
           </a>
         </div>
 
+        {/* Suggestion */}
+        {step.suggestion && (
+          <div className="mt-3 flex items-start gap-2 text-[12px] bg-sky-50 dark:bg-sky-500/10 text-sky-700 dark:text-sky-300 px-3 py-2 rounded-lg border border-sky-200 dark:border-sky-500/20">
+            <Info size={14} className="flex-shrink-0 mt-0.5" />
+            <span className="font-medium italic">{step.suggestion}</span>
+          </div>
+        )}
+
+        {/* SEO Insights */}
+        {step.seo && (
+          <div className="mt-5 pt-4 border-t border-border/30">
+            <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-2">
+              <Search size={10} /> SEO Insights
+            </p>
+            <div className="space-y-3 bg-muted/20 rounded-xl p-4 border border-border/20">
+              {step.seo.title && (
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5">Title Tag</p>
+                  <p className="text-[13px] text-foreground font-medium leading-tight">{step.seo.title}</p>
+                </div>
+              )}
+              {step.seo.description && (
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5">Description</p>
+                  <p className="text-[12px] text-muted-foreground leading-relaxed italic">{step.seo.description}</p>
+                </div>
+              )}
+              {step.seo.h1 && (
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5">Primary H1</p>
+                    <p className="text-[13px] text-foreground font-medium truncate">{step.seo.h1}</p>
+                  </div>
+                </div>
+              )}
+              {step.seo.canonical && (
+                <div>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-0.5">Canonical URL</p>
+                  <div className="flex items-center gap-1.5 text-[11px] text-primary break-all">
+                    <ArrowDownRight size={10} />
+                    <span className="font-mono">{step.seo.canonical}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Errors */}
         {step.error && (
-          <div className="mt-4 flex items-center gap-2 text-[13px] text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 rounded-lg px-4 py-3 border border-rose-200 dark:border-rose-500/20">
+          <div className="mt-4 flex items-center gap-2 text-[13px] text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 rounded-lg px-4 py-3 border border-rose-200 dark:border-rose-500/20 shadow-xs">
             <AlertTriangle size={14} className="flex-shrink-0" />
             <span className="font-medium">{step.error}</span>
           </div>
         )}
 
         {/* Header Inspector */}
-        <HeaderInspector headers={step.headers} />
+        <div className="mt-2">
+          <HeaderInspector headers={step.headers} />
+        </div>
       </div>
     </motion.div>
   );
