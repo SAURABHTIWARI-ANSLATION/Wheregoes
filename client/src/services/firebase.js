@@ -13,7 +13,10 @@ const firebaseConfig = {
 };
 
 // Check if Firebase is configured
-const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'your_firebase_api_key';
+const isConfigured = !!firebaseConfig.apiKey && 
+                   firebaseConfig.apiKey !== 'your_firebase_api_key' && 
+                   firebaseConfig.apiKey !== 'undefined' &&
+                   firebaseConfig.apiKey !== '';
 
 console.log('🔥 Firebase Configured:', isConfigured);
 if (!isConfigured) {
