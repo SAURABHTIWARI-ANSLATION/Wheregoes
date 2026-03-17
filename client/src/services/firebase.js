@@ -18,9 +18,15 @@ const isConfigured = !!firebaseConfig.apiKey &&
                    firebaseConfig.apiKey !== 'undefined' &&
                    firebaseConfig.apiKey !== '';
 
-console.log('🔥 Firebase Configured:', isConfigured);
+console.log('🔥 Firebase Check:', {
+  isConfigured,
+  hasApiKey: !!firebaseConfig.apiKey,
+  apiKeyPrefix: firebaseConfig.apiKey ? firebaseConfig.apiKey.substring(0, 6) : 'none',
+  projectId: firebaseConfig.projectId
+});
+
 if (!isConfigured) {
-  console.log('⚠️ Firebase API Key missing or default. Check your .env/Vercel variables.');
+  console.error('❌ Firebase Configuration Missing! Vercel environment variables VITE_FIREBASE_* are required.');
 }
 
 let app = null;
