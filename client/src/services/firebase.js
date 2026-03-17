@@ -18,15 +18,19 @@ const isConfigured = !!firebaseConfig.apiKey &&
                    firebaseConfig.apiKey !== 'undefined' &&
                    firebaseConfig.apiKey !== '';
 
-console.log('🔥 Firebase Check:', {
-  isConfigured,
-  hasApiKey: !!firebaseConfig.apiKey,
-  apiKeyPrefix: firebaseConfig.apiKey ? firebaseConfig.apiKey.substring(0, 6) : 'none',
-  projectId: firebaseConfig.projectId
+// EXTREME DEBUG LOGGING
+console.log('--- FIREBASE CONFIG DEBUG ---');
+console.log('Available VITE_ Keys:', Object.keys(import.meta.env).filter(k => k.startsWith('VITE_')));
+console.log('Firebase Config Status:', {
+  apiKey: !!firebaseConfig.apiKey ? 'PRESENT (Starts with: ' + firebaseConfig.apiKey.substring(0, 5) + '...)' : 'MISSING',
+  projectId: !!firebaseConfig.projectId ? 'PRESENT (' + firebaseConfig.projectId + ')' : 'MISSING',
+  appId: !!firebaseConfig.appId ? 'PRESENT' : 'MISSING',
+  isConfigured: isConfigured
 });
+console.log('-----------------------------');
 
 if (!isConfigured) {
-  console.error('❌ Firebase Configuration Missing! Vercel environment variables VITE_FIREBASE_* are required.');
+  console.error('❌ Firebase Configuration Missing! Please double check Vercel Environment Variables Key/Value pairs.');
 }
 
 let app = null;
