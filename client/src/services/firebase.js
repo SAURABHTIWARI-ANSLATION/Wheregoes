@@ -15,6 +15,11 @@ const firebaseConfig = {
 // Check if Firebase is configured
 const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== 'your_firebase_api_key';
 
+console.log('🔥 Firebase Configured:', isConfigured);
+if (!isConfigured) {
+  console.log('⚠️ Firebase API Key missing or default. Check your .env/Vercel variables.');
+}
+
 let app = null;
 let db = null;
 let analytics = null;
