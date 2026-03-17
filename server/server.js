@@ -31,6 +31,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
+// Start server
 app.listen(PORT, () => {
-  console.log(`🚀 WhereGoes server running on http://localhost:${PORT}`);
+  console.log(`🚀 WhereGoes server running on port ${PORT}`);
 });
+
+module.exports = app;

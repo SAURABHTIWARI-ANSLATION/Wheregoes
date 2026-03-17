@@ -1,0 +1,24 @@
+{
+  "name": "wheregoes",
+  "version": "1.0.0",
+  "description": "> Trace the full redirect chain of any URL. Visualize every hop, inspect HTTP headers, and detect redirect loops in real-time.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SAURABHTIWARI-ANSLATION/Wheregoes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SAURABHTIWARI-ANSLATION/Wheregoes/issues"
+  },
+  "homepage": "https://github.com/SAURABHTIWARI-ANSLATION/Wheregoes#readme",
+  "dependencies": {
+    "firebase-tools": "^15.10.1"
+  }
+}
