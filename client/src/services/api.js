@@ -5,6 +5,8 @@ const API_URL = isLocalhost
   ? 'http://localhost:5001/api' 
   : (import.meta.env.VITE_API_URL || 'https://wheregoes.onrender.com/api');
 
+console.log('🌐 Connected to Backend at:', API_URL);
+
 const api = axios.create({
   baseURL: API_URL,
   timeout: 30000,
