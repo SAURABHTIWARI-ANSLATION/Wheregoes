@@ -35,8 +35,8 @@ export default function RedirectCard({ step, index, isLast }) {
 
       {/* Card Body */}
       <div className={cn(
-        "flex-1 mb-8 bg-card border shadow-sm rounded-xl p-4 sm:p-5 transition-all duration-300",
-        isLast && "ring-1 ring-primary/20 border-primary/30 shadow-md"
+        "flex-1 mb-8 glass-card p-5 transition-all duration-300",
+        isLast && "ring-2 ring-primary/20 border-primary/40 shadow-xl shadow-primary/5"
       )}>
         {/* Top Header Group */}
         <div className="flex items-start justify-between gap-4 flex-wrap pb-1">

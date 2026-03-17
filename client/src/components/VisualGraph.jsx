@@ -86,7 +86,7 @@ export default function VisualGraph({ chain }) {
         nodesDraggable={true}
         elementsSelectable={true}
       >
-        <Background gap={20} color="rgba(0,0,0,0.05)" />
+        <Background gap={20} className="opacity-[0.05] dark:opacity-[0.1] !bg-foreground" />
         <Controls />
       </ReactFlow>
     </div>

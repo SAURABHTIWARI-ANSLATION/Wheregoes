@@ -170,13 +170,13 @@ export default function Home() {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 + i * 0.1 }}
-              className="bg-card border shadow-sm rounded-xl p-5 hover:shadow-md transition-shadow"
+              className="glass-card-hover p-6 group flex flex-col items-center text-center sm:items-start sm:text-left"
             >
-              <div className="w-10 h-10 rounded-lg bg-primary/10 border-primary/20 flex items-center justify-center text-primary mb-4">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary mb-5 group-hover:scale-110 transition-transform duration-300">
                 {f.icon}
               </div>
-              <p className="font-bold text-foreground mb-1.5">{f.title}</p>
-              <p className="text-[13px] text-muted-foreground leading-relaxed">{f.desc}</p>
+              <p className="font-bold text-foreground text-lg mb-2">{f.title}</p>
+              <p className="text-[14px] text-muted-foreground leading-relaxed font-medium">{f.desc}</p>
             </motion.div>
           ))}
         </motion.div>
